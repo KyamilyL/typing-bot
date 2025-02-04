@@ -57,11 +57,10 @@ async def practice(interaction: discord.Interaction, difficulty: str = None, mod
             description="📝入力方法: `ローマ字` `ひらがな` ⏳制限時間: `30秒`",
             color=0x6464ff,
         )
-        embed.set_image(url=f"attachment://{index}.png")
+        embed.set_image(url=f"https://raw.githubusercontent.com/KyamilyL/typing/refs/heads/main/data/image/{difficulty}/{index}.png")
 
         await interaction.response.send_message(
             embed=embed,
-            file=discord.File(os.path.join(f"data/image/{difficulty}/{index}.png")),
             ephemeral=True
         )
 
@@ -125,11 +124,10 @@ async def practice(interaction: discord.Interaction, difficulty: str = None, mod
                 description=f"📝入力方法: `ローマ字` `ひらがな` ⏳残り時間: `{60 - (time.time() - start):.2f}秒`",
                 color=0x6464ff
             )
-            embed.set_image(url=f"attachment://{index}.png")
+            embed.set_image(url=f"https://raw.githubusercontent.com/KyamilyL/typing/refs/heads/main/data/image/{difficulty}/{index}.png")
 
             await interaction.followup.send(
                 embed=embed,
-                file=discord.File(os.path.join(f"data/image/{difficulty}/{index}.png")),
                 ephemeral=True
             )
 
