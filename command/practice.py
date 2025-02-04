@@ -25,8 +25,8 @@ async def practice(interaction: discord.Interaction, difficulty: str = None):
     if interaction.user.id in running:
         await interaction.response.send_message(
             embed=discord.Embed(
-                description=f"実行中です。",
-                color=0xff0064
+                description="⛔実行中",
+                color=0xff6464
             ),
             ephemeral=True
         )
@@ -42,8 +42,8 @@ async def practice(interaction: discord.Interaction, difficulty: str = None):
     start = time.time()
 
     embed = discord.Embed(
-        description=f"入力方法:`ローマ字` or `ひらがな`\n中止方法: `!stop`",
-        color=0x00ff64,
+        description="📝入力方法: `ローマ字` `ひらがな` 🛑停止方法: `!stop` ⏳制限時間: `30秒`",
+        color=0x6464ff,
     )
     embed.set_image(url=f"attachment://{index}.png")
 
@@ -74,8 +74,8 @@ async def practice(interaction: discord.Interaction, difficulty: str = None):
         if okaka.convert(message.content.replace(" ", "")) == word[1]:
             await message.reply(
                 embed=discord.Embed(
-                    title="正解！",
-                    description=f"{time.time() - start:.2f}秒"
+                    description=f"⭕**正解 ！**⌛ __{time.time() - start:.2f}__",
+                    colour=0x64ff64
                 )
             )
             break
