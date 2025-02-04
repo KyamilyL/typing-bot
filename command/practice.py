@@ -1,6 +1,7 @@
 import discord
 import random
 import time
+import asyncio
 import os
 
 from discord import app_commands
@@ -39,10 +40,9 @@ async def practice(interaction: discord.Interaction, difficulty: str = None):
 
     index = random.randint(0, len(words[difficulty]) - 1)
     word = words[difficulty][index]
-    start = time.time()
 
     embed = discord.Embed(
-        description="📝入力方法: `ローマ字` `ひらがな` 🛑停止方法: `!stop` ⏳制限時間: `30秒`",
+        description="📝入力方法: `ローマ字` `ひらがな` ⏳制限時間: `30秒`",
         color=0x6464ff,
     )
     embed.set_image(url=f"attachment://{index}.png")
@@ -58,34 +58,36 @@ async def practice(interaction: discord.Interaction, difficulty: str = None):
             return False
         return message.author.id == interaction.user.id and message.channel.id == interaction.channel.id
     
-    while True:
-        if time.time() - start > 30:
-            await interaction.edit_original_response(
-                embed=discord.Embed(
-                    title="時間切れ！"
-                )
-            )
-            break
+    try:
+        start = time.time()
+        message = await asyncio.wait_for(client.wait_for("message", check=check), timeout=30)
 
-        message = await client.wait_for("message", check=check)
-
-        print(f"{message.content} {okaka.convert(message.content)} {word[1]}")
-
-        if okaka.convert(message.content.replace(" ", "")) == word[1]:
+        if okaka.convert(message.content.replace(" ", "").lower()) == word[1]:
             await message.reply(
                 embed=discord.Embed(
-                    description=f"⭕**正解 ！**⌛ __{time.time() - start:.2f}__",
+                    description=f"⭕**正解！**\n⌛時間: `{time.time() - start:.2f}秒`⚡速度: `{len(message.content.replace(" ", "")) / (time.time() - start):.2f}文字/秒`",
                     colour=0x64ff64
                 )
             )
-            break
+
         else:
             try:
-                if message.content == "!stop":
-                    break
-
-                await message.delete()
+                await message.reply(
+                    embed=discord.Embed(
+                    description=f"❌**不正解！**\n正解: `{word[1]}`\n入力: `{okaka.convert(message.content.replace(" ", "")).lower()}`",
+                    colour=0xff6464
+                )
+            )
             except discord.NotFound:
                 pass
+    except asyncio.TimeoutError:
+        await interaction.followup.send(
+            embed=discord.Embed(
+                description="⌛時間切れ！",
+                colour=0xff6464
+            ),
+            ephemeral=True
+        )
+        await interaction.delete_original_response()
 
     running.discard(interaction.user.id)
