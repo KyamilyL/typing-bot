@@ -138,14 +138,14 @@ async def practice(interaction: discord.Interaction, difficulty: str = None, mod
 
             try:
                 message = await client.wait_for("message", timeout=60 - (time.time() - start), check=check)
-                if len(message.content.replace(" ", "")) < 30:
+                if len(message.content.replace(" ", "")) < 100:
                     length += len(message.content.replace(" ", ""))
 
                 if okaka.convert(message.content.replace(" ", "").lower()) == word[1]:
                     await message.add_reaction("⭕")
 
                     streak += 1
-                    score += (10 * streak)
+                    score += (100 * streak)
                     if streak > max_streak:
                         max_streak = streak
                 else:
