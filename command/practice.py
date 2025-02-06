@@ -34,7 +34,7 @@ async def practice(interaction: discord.Interaction, difficulty: str = None, mod
     if interaction.user.id in running:
         await interaction.response.send_message(
             embed=discord.Embed(
-                description="⛔実行中",
+                description="実行中",
                 color=0xff6464
             ),
             ephemeral=True
@@ -162,9 +162,10 @@ async def practice(interaction: discord.Interaction, difficulty: str = None, mod
                 break
 
         await interaction.followup.send(
+            content=f"<@interaction.user.id>",
             embed=discord.Embed(
                 title=f"結果 モード:{difficulty}",
-                description=f"💯スコア: `{score + length}点` (自己ベスト: `1点`)\n⚡入力速度: `{length / 60:.2f}文字/秒`\n🔥連続正解: `{max_streak}問`",
+                description=f"💯スコア: `{score}点` (自己ベスト: `1点`)\n⚡入力速度: `{length / 60:.2f}文字/秒`\n🔥連続正解: `{max_streak}問`",
                 color=0x6464ff
                 )
             )
