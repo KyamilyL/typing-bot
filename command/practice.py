@@ -2,12 +2,12 @@ import discord
 import random
 import time
 import asyncio
-import os
 
 from discord import app_commands
 from discord.ext import commands
 from pyokaka import okaka
 from config import client
+from manager.database import get_bestscore, set_bestscore
 from manager.user import running
 from manager.word import load_words
 
@@ -57,7 +57,7 @@ async def practice(interaction: discord.Interaction, difficulty: str = None, mod
             description="📝入力方法: `ローマ字` `ひらがな` ⏳制限時間: `30秒`",
             color=0x6464ff,
         )
-        embed.set_image(url=f"https://raw.githubusercontent.com/KyamilyL/typing-bot/refs/heads/main/data/image/{difficulty}/{index}.png")
+        embed.set_image(url=f"https://raw.githubusercontent.com/KyamilyL/typing-bot/refs/heads/main/asset/image/{difficulty}/{index}.png")
 
         await interaction.response.send_message(
             embed=embed,
@@ -124,7 +124,7 @@ async def practice(interaction: discord.Interaction, difficulty: str = None, mod
                 description=f"📝入力方法: `ローマ字` `ひらがな` ⏳残り時間: `{60 - (time.time() - start):.2f}秒`",
                 color=0x6464ff
             )
-            embed.set_image(url=f"https://raw.githubusercontent.com/KyamilyL/typing-bot/refs/heads/main/data/image/{difficulty}/{index}.png")
+            embed.set_image(url=f"https://raw.githubusercontent.com/KyamilyL/typing-bot/refs/heads/main/asset/image/{difficulty}/{index}.png")
 
             await interaction.followup.send(
                 embed=embed,
@@ -161,11 +161,12 @@ async def practice(interaction: discord.Interaction, difficulty: str = None, mod
             except asyncio.TimeoutError:
                 break
 
+        set_bestscore(interaction.user.id, difficulty, score)
         await interaction.followup.send(
-            content=f"<@interaction.user.id>",
+            content=f"<@{interaction.user.id}>",
             embed=discord.Embed(
                 title=f"結果 モード:{difficulty}",
-                description=f"💯スコア: `{score}点` (自己ベスト: `1点`)\n⚡入力速度: `{length / 60:.2f}文字/秒`\n🔥連続正解: `{max_streak}問`",
+                description=f"💯スコア: `{score}点` (自己ベスト: `{get_bestscore(interaction.user.id, difficulty)}点`)\n⚡入力速度: `{length / 60:.2f}文字/秒`\n🔥連続正解: `{max_streak}問`",
                 color=0x6464ff
                 )
             )
