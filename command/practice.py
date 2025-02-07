@@ -7,9 +7,9 @@ from discord import app_commands
 from discord.ext import commands
 from pyokaka import okaka
 from config import client
-from manager.database import get_bestscore, set_bestscore
-from manager.user import running
-from manager.word import load_words
+from management.database import get_bestscore, set_bestscore
+from management.user import running
+from management.word import load_words
 
 words = load_words()
 

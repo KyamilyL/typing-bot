@@ -4,8 +4,8 @@ import config
 from discord import app_commands
 
 from command.practice import practice
-from manager.database import setup_database
-from manager.word import create_image
+from management.database import setup_database
+from management.word import create_image
 
 client = config.client
 
