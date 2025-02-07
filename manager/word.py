@@ -4,19 +4,19 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 
 def load_words():
-    with open("data/word.json", encoding="utf-8") as file:
+    with open("asset/word.json", encoding="utf-8") as file:
         return json.load(file)
 
 def create_image():
-    os.makedirs(f"data/image", exist_ok=True)
+    os.makedirs(f"asset/image", exist_ok=True)
     for difficulty, list in load_words().items():
-        os.makedirs(f"data/image/{difficulty}", exist_ok=True)
+        os.makedirs(f"asset/image/{difficulty}", exist_ok=True)
         for id, word in enumerate(list):
-            if os.path.exists(f"data/image/{difficulty}/{id}.png"):
+            if os.path.exists(f"asset/image/{difficulty}/{id}.png"):
                 continue
 
-            word_font = ImageFont.truetype(os.path.join("data/font/NotoSansJP-Regular.ttf"), 100)
-            hira_font = ImageFont.truetype(os.path.join("data/font/NotoSansJP-Light.ttf"), 50)
+            word_font = ImageFont.truetype(os.path.join("asset/font/NotoSansJP-Regular.ttf"), 100)
+            hira_font = ImageFont.truetype(os.path.join("asset/font/NotoSansJP-Light.ttf"), 50)
 
             temp_image = Image.new("RGB", (1, 1))
             temp_draw = ImageDraw.Draw(temp_image)
@@ -35,6 +35,4 @@ def create_image():
             hira_y = ((image.height - hira_bbox[3] - hira_bbox[1]) // 2) - 80
             draw.text((hira_x, hira_y), word[1], font=hira_font, fill=(0, 0, 0))
 
-            image.save(os.path.join(f"data/image/{difficulty}/{id}.png"))
-
-            print(f"CreateImage: data/image/{difficulty}/{id}.png")
+            image.save(os.path.join(f"asset/image/{difficulty}/{id}.png"))
