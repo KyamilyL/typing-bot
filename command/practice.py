@@ -7,7 +7,7 @@ from discord import app_commands
 from discord.ext import commands
 from pyokaka import okaka
 from config import client
-from management.database import get_bestscore, set_bestscore
+from management.data.bestscore import get_bestscores, set_bestscore
 from management.user import running
 from management.word import load_words
 
@@ -160,13 +160,17 @@ async def practice(interaction: discord.Interaction, difficulty: str = None, mod
                         pass
             except asyncio.TimeoutError:
                 break
+        
+        scoreupdata = f"(自己ベスト: `{get_bestscores(difficulty, interaction.user.id)}点`)"
+        if score >= get_bestscores(difficulty, interaction.user.id):
+            set_bestscore(difficulty, interaction.user.id, score)
+            scoreupdata = f"(ベスト更新！)"
 
-        set_bestscore(interaction.user.id, difficulty, score)
         await interaction.followup.send(
             content=f"<@{interaction.user.id}>",
             embed=discord.Embed(
                 title=f"結果 モード:{difficulty}",
-                description=f"💯スコア: `{score}点` (自己ベスト: `{get_bestscore(interaction.user.id, difficulty)}点`)\n⚡入力速度: `{length / 60:.2f}文字/秒`\n🔥連続正解: `{max_streak}問`",
+                description=f"💯スコア: `{score}点` {scoreupdata}\n⚡入力速度: `{length / 60:.2f}文字/秒`\n🔥連続正解: `{max_streak}問`",
                 color=0x6464ff
                 )
             )
