@@ -1,11 +1,4 @@
 import json
-import os
-
-def setup_bestscore():
-    if not os.path.exists("data/bestscore.json"):
-        os.makedirs("data/bestscore.json")
-        with open("data/bestscore.json", "w") as file:
-            json.dump({"easy": {},"normal": {}, "hard": {}}, file)
 
 def load_bestscores():
     with open("data/bestscore.json", "r") as file:
