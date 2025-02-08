@@ -4,7 +4,6 @@ import time
 import asyncio
 
 from discord import app_commands
-from discord.ext import commands
 from pyokaka import okaka
 from config import client
 from management.data.bestscore import get_bestscores, set_bestscore
