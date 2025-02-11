@@ -1,4 +1,5 @@
 import discord
+import discord.ui
 import random
 import time
 import asyncio
@@ -12,28 +13,64 @@ from management.word import load_words
 
 words = load_words()
 
-@app_commands.command(name="practice", description="タイピングの練習ができるよ！")
-@app_commands.describe(difficulty="難易度をえらべるよ！")
-@app_commands.describe(mode="モードをえらべるよ！")
-@app_commands.choices(
-    difficulty=[
-        app_commands.Choice(name="easy", value="easy"),
-        app_commands.Choice(name="normal", value="normal"),
-        app_commands.Choice(name="hard", value="hard")
-    ]
-)
-@app_commands.choices(
-    mode=[
-        app_commands.Choice(name="once", value="once"),
-        app_commands.Choice(name="score", value="score")
-    ]
-)
-async def practice(interaction: discord.Interaction, difficulty: str = None, mode: str = None):
+class modeView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(label="一問だけ", style=discord.ButtonStyle.primary)
+    async def once(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.updata_mode(interaction, button, "once")
+
+    @discord.ui.button(label="スコアモード", style=discord.ButtonStyle.primary)
+    async def score(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.updata_mode(interaction, button, "score")
+
+    async def updata_mode(self, interaction: discord.Interaction, button: discord.ui.Button, mode):
+        button.disabled = True
+        await interaction.response.edit_message(
+            embed=discord.Embed(
+                title="タイピング",
+                description=f"モード: `{mode}`\n難易度: ` `"
+            ),
+            view=DifficultyView(mode)
+        )
+
+class DifficultyView(discord.ui.View):
+    def __init__(self, mode):
+        super().__init__(timeout=None)
+        self.mode = mode
+
+    @discord.ui.button(label="簡単", style=discord.ButtonStyle.success)
+    async def easy(self, interaction: discord.Interaction, button: discord.ui.Button,):
+        await self.update_difficulty(interaction, button, "easy")
+
+    @discord.ui.button(label="普通", style=discord.ButtonStyle.primary)
+    async def normal(self, interaction: discord.Interaction, button: discord.ui.Button,):
+        await self.update_difficulty(interaction, button, "normal")
+
+    @discord.ui.button(label="難しい", style=discord.ButtonStyle.danger)
+    async def hard(self, interaction: discord.Interaction, button: discord.ui.Button,):
+        await self.update_difficulty(interaction, button, "hard")
+
+    async def update_difficulty(self, interaction: discord.Interaction, button:discord.ui.Button, difficulty):
+        button.disabled = True
+        await interaction.response.edit_message(
+            embed=discord.Embed(
+                title="タイピング",
+                description=f"モード: `{self.mode}`\n難易度: `{difficulty}`"
+            ),
+            view=None
+        )
+
+        await start_typing(interaction, self.mode, difficulty)
+
+@app_commands.command(name="typing", description="タイピングの練習ができるよ！")
+async def typing(interaction: discord.Interaction):
 
     if interaction.user.id in running:
         await interaction.response.send_message(
             embed=discord.Embed(
-                description="実行中",
+                description="実行中 `/stop`で中止可能",
                 color=0xff6464
             ),
             ephemeral=True
@@ -42,12 +79,18 @@ async def practice(interaction: discord.Interaction, difficulty: str = None, mod
     
     running.add(interaction.user.id)
 
-    if difficulty is None:
-        difficulty = "easy"
+    view = modeView()
+    await interaction.response.send_message(
+        embed=discord.Embed(
+            title="タイピング",
+            description=f"モード: ` `\n難易度: ` `",
+            color=0x6464ff
+        ),
+        view=view,
+        ephemeral=True
+    )
 
-    if mode is None:
-        mode = "once"
-
+async def start_typing(interaction: discord.Interaction, mode: str, difficulty: str):
     if mode == "once":
         index = random.randint(0, len(words[difficulty]) - 1)
         word = words[difficulty][index]
@@ -58,7 +101,7 @@ async def practice(interaction: discord.Interaction, difficulty: str = None, mod
         )
         embed.set_image(url=f"https://raw.githubusercontent.com/KyamilyL/typing-bot/refs/heads/main/asset/image/{difficulty}/{index}.png")
 
-        await interaction.response.send_message(
+        await interaction.followup.send(
             embed=embed,
             ephemeral=True
         )
@@ -108,9 +151,9 @@ async def practice(interaction: discord.Interaction, difficulty: str = None, mod
         streak = 0
         max_streak = 0
 
-        await interaction.response.send_message(
+        await interaction.followup.send(
             embed=discord.Embed(
-                description="!stopで終了"
+                description="`!stop`で終了"
             ),
             ephemeral=True
         )
@@ -149,7 +192,7 @@ async def practice(interaction: discord.Interaction, difficulty: str = None, mod
                         max_streak = streak
                 else:
                     try:
-                        if message.content.replace(" ", "") == "!stop":
+                        if message.content == "!stop":
                             break
                         
                         await message.add_reaction("❌")
